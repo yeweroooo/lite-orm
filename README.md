@@ -1396,6 +1396,12 @@ smoke install from ghuts-liteorm-1.0.0.tgz: pass
 - FTS support requires SQLite compiled with FTS5.
 - Encryption uses Node built-in `crypto` and AES-256-GCM.
 
+## Maintainer
+
+Maintained by Lsow: https://github.com/yeweroooo
+
+Repository: https://github.com/yeweroooo/lite-orm
+
 ## License
 
 MIT

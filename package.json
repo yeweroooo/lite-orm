@@ -50,5 +50,23 @@
   ],
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "author": {
+    "name": "Lsow",
+    "url": "https://github.com/yeweroooo"
+  },
+  "contributors": [
+    {
+      "name": "Lsow",
+      "url": "https://github.com/yeweroooo"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeweroooo/lite-orm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yeweroooo/lite-orm/issues"
+  },
+  "homepage": "https://github.com/yeweroooo/lite-orm#readme"
 }
