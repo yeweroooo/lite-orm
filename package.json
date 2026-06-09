@@ -1,5 +1,5 @@
 {
-  "name": "lite-orm",
+  "name": "@ghuts/liteorm",
   "version": "1.0.0",
   "description": "Zero-dependency native SQLite ORM for Node.js with query builder, migrations, relations, schema builder, FTS5, encryption, audit logs, and CLI.",
   "main": "lib/index.js",
@@ -47,5 +47,8 @@
   "cpu": [
     "x64",
     "arm64"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

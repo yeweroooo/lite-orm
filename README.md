@@ -6,7 +6,7 @@ Lite ORM is a lightweight SQLite-first ORM built around a C++ N-API addon and a 
 
 Current version: 1.0.0
 
-Package name: `lite-orm`
+Package name: `@ghuts/liteorm`
 
 ## Highlights
 
@@ -46,13 +46,13 @@ sudo apt-get install -y build-essential python3 libsqlite3-dev
 From npm after publish:
 
 ```bash
-npm install lite-orm
+npm install @ghuts/liteorm
 ```
 
 From local tarball:
 
 ```bash
-npm install /home/adt/Documents/orm/lite-orm-1.0.0.tgz
+npm install /home/adt/Documents/orm/ghuts-liteorm-1.0.0.tgz
 ```
 
 From local project folder:
@@ -69,7 +69,7 @@ The package runs `node-gyp rebuild` during npm install.
 ## Quick start
 
 ```js
-const { Database, defineModel, field } = require('lite-orm');
+const { Database, defineModel, field } = require('@ghuts/liteorm');
 
 const db = new Database('app.sqlite');
 
@@ -135,13 +135,13 @@ const {
   sql,
   errors,
   sqliteVersion
-} = require('lite-orm');
+} = require('@ghuts/liteorm');
 ```
 
 TypeScript:
 
 ```ts
-import { Database, defineModel, field, errors } from 'lite-orm';
+import { Database, defineModel, field, errors } from '@ghuts/liteorm';
 ```
 
 ## Database API
@@ -177,7 +177,7 @@ console.log(rows);
 ### SQL tagged template
 
 ```js
-const { sql } = require('lite-orm');
+const { sql } = require('@ghuts/liteorm');
 
 const rows = db.query(sql`SELECT * FROM users WHERE email = ${'a@test.local'}`);
 ```
@@ -1056,7 +1056,7 @@ console.log(users.findByEmail('a@test.local'));
 ## Error classes
 
 ```js
-const { errors } = require('lite-orm');
+const { errors } = require('@ghuts/liteorm');
 ```
 
 Available classes:
@@ -1141,7 +1141,7 @@ Exports the table to JSON.
 ## TypeScript example
 
 ```ts
-import { Database, defineModel, field } from 'lite-orm';
+import { Database, defineModel, field } from '@ghuts/liteorm';
 
 type UserRow = {
   id: number;
@@ -1176,7 +1176,7 @@ const found = User.query()
 ## Complete blog example
 
 ```js
-const { Database, defineModel, field } = require('lite-orm');
+const { Database, defineModel, field } = require('@ghuts/liteorm');
 
 const db = new Database('blog.sqlite');
 
@@ -1329,7 +1329,7 @@ npm publish --access public
 Verify registry:
 
 ```bash
-npm view lite-orm version
+npm view @ghuts/liteorm version
 ```
 
 Expected output:
@@ -1347,10 +1347,10 @@ npm pack
 TMP=$(mktemp -d)
 cd "$TMP"
 npm init -y
-npm install /home/adt/Documents/orm/lite-orm-1.0.0.tgz
+npm install /home/adt/Documents/orm/ghuts-liteorm-1.0.0.tgz
 
 node - <<'NODE'
-const { Database, defineModel, field } = require('lite-orm');
+const { Database, defineModel, field } = require('@ghuts/liteorm');
 const db = new Database(':memory:');
 db.schema.createTable('users', t => {
   t.increments('id');
@@ -1383,7 +1383,7 @@ npm run build: pass
 npm test: 13 tests, 13 pass, 0 fail
 npm pack --dry-run: pass
 npm publish --dry-run --access public: pass
-smoke install from lite-orm-1.0.0.tgz: pass
+smoke install from ghuts-liteorm-1.0.0.tgz: pass
 ```
 
 ## Notes and implementation details
