@@ -8,6 +8,10 @@ Current version: 1.0.0
 
 Package name: `@ghuts/liteorm`
 
+Repository: https://github.com/yeweroooo/lite-orm
+
+NPM: https://www.npmjs.com/package/@ghuts/liteorm
+
 ## Highlights
 
 - Native SQLite bridge using C++ N-API.
@@ -52,13 +56,13 @@ npm install @ghuts/liteorm
 From local tarball:
 
 ```bash
-npm install /home/adt/Documents/orm/ghuts-liteorm-1.0.0.tgz
+npm install ./ghuts-liteorm-1.0.0.tgz
 ```
 
 From local project folder:
 
 ```bash
-cd /home/adt/Documents/orm
+cd lite-orm
 npm install
 npm run build
 npm test
@@ -1283,12 +1287,6 @@ npm run build
 npm test
 ```
 
-Local source path in this environment:
-
-```bash
-cd /home/adt/Documents/orm
-```
-
 Run tests:
 
 ```bash
@@ -1341,13 +1339,13 @@ Expected output:
 ## Smoke test from tarball
 
 ```bash
-cd /home/adt/Documents/orm
+cd lite-orm
 npm pack
 
 TMP=$(mktemp -d)
 cd "$TMP"
 npm init -y
-npm install /home/adt/Documents/orm/ghuts-liteorm-1.0.0.tgz
+npm install ./ghuts-liteorm-1.0.0.tgz
 
 node - <<'NODE'
 const { Database, defineModel, field } = require('@ghuts/liteorm');
