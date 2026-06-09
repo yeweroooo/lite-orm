@@ -1,0 +1,51 @@
+{
+  "name": "lite-orm",
+  "version": "1.0.0",
+  "description": "Zero-dependency native SQLite ORM for Node.js with query builder, migrations, relations, schema builder, FTS5, encryption, audit logs, and CLI.",
+  "main": "lib/index.js",
+  "types": "types/index.d.ts",
+  "gypfile": true,
+  "bin": {
+    "lite-orm": "bin/lite-orm.js"
+  },
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "install": "node-gyp rebuild",
+    "test": "node --test test/*.test.js",
+    "prepack": "npm test"
+  },
+  "keywords": [
+    "sqlite",
+    "sqlite3",
+    "orm",
+    "native",
+    "napi",
+    "node-addon",
+    "query-builder",
+    "migrations",
+    "fts5",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "files": [
+    "lib/",
+    "src/",
+    "bin/",
+    "types/",
+    "binding.gyp",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}

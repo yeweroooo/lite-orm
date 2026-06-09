@@ -1,0 +1,9 @@
+build/
+node_modules/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.tgz
+.DS_Store
+coverage/
+.nyc_output/

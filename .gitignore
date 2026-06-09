@@ -1,0 +1,14 @@
+build/
+node_modules/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.DS_Store
+
+# local artifacts
+build/
+node_modules/
+*.tgz
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
