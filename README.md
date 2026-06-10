@@ -1,10 +1,17 @@
 # Lite ORM
 
+[![CI](https://github.com/yeweroooo/lite-orm/actions/workflows/ci.yml/badge.svg)](https://github.com/yeweroooo/lite-orm/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@ghuts/liteorm.svg)](https://www.npmjs.com/package/@ghuts/liteorm)
+[![npm downloads](https://img.shields.io/npm/dm/@ghuts/liteorm.svg)](https://www.npmjs.com/package/@ghuts/liteorm)
+[![Node.js >=18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![npm provenance](https://img.shields.io/badge/npm-provenance-blue.svg)](https://docs.npmjs.com/generating-provenance-statements)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Zero-dependency native SQLite ORM for Node.js.
 
 Lite ORM is a lightweight SQLite-first ORM built around a C++ N-API addon and a small JavaScript ORM layer. It gives you a query builder, schema builder, migrations, typed models, relationships, validation, transactions, caching, hooks, soft deletes, JSON fields, FTS5, encryption casts, audit logs, CLI utilities, and TypeScript declarations without adding runtime npm dependencies.
 
-Current version: 1.0.0
+Current version: 1.1.0
 
 Package name: `@ghuts/liteorm`
 
@@ -36,13 +43,13 @@ NPM: https://www.npmjs.com/package/@ghuts/liteorm
 - npm
 - C++ compiler
 - Python available to node-gyp
-- SQLite development library available to the system linker
 - node-gyp available through npm lifecycle
+- SQLite is vendored in `deps/sqlite/` for portable builds
 
 On Debian/Ubuntu-like systems:
 
 ```bash
-sudo apt-get install -y build-essential python3 libsqlite3-dev
+sudo apt-get install -y build-essential python3
 ```
 
 ## Installation
@@ -56,7 +63,7 @@ npm install @ghuts/liteorm
 From local tarball:
 
 ```bash
-npm install ./ghuts-liteorm-1.0.0.tgz
+npm install ./ghuts-liteorm-1.1.0.tgz
 ```
 
 From local project folder:
@@ -1142,6 +1149,44 @@ lite-orm export:json app.sqlite users users.json
 
 Exports the table to JSON.
 
+### doctor
+
+```bash
+lite-orm doctor
+```
+
+Checks the Node version, package metadata, platform/architecture support, native addon loading, SQLite version, JSON1, FTS5, and temp directory write access.
+
+
+## Runnable examples
+
+The npm package includes runnable examples. From a source checkout after building:
+
+```bash
+npm run build
+node examples/todo/index.js
+node examples/blog/index.js
+node examples/auth/index.js
+```
+
+Run all examples:
+
+```bash
+npm run test:examples
+```
+
+Use a persistent database file by setting `LITEORM_DB`:
+
+```bash
+LITEORM_DB=./todo.sqlite node examples/todo/index.js
+```
+
+See also:
+
+- `docs/examples.md`
+- `docs/v1.1.md`
+- `docs/package-readiness.md`
+
 ## TypeScript example
 
 ```ts
@@ -1271,6 +1316,9 @@ lite-orm/
     addon.cc                 Native C++ SQLite addon
   types/
     index.d.ts               TypeScript declarations
+  examples/                  runnable examples
+  docs/                      release and package docs
+  deps/sqlite/               vendored SQLite amalgamation
   binding.gyp                node-gyp build config
   README.md
   LICENSE
@@ -1307,7 +1355,7 @@ npm pack
 
 ## Publish
 
-The package is prepared for npm publish as v1.0.0.
+The package is prepared for npm publish as v1.1.0.
 
 Pre-publish validation:
 
@@ -1333,19 +1381,21 @@ npm view @ghuts/liteorm version
 Expected output:
 
 ```text
-1.0.0
+1.1.0
 ```
 
 ## Smoke test from tarball
 
 ```bash
 cd lite-orm
-npm pack
+PACK_DIR="$(mktemp -d)"
+SMOKE_DIR="$(mktemp -d)"
+npm pack --pack-destination "$PACK_DIR"
+PKG_PATH="$(node -e "const fs=require('fs'),path=require('path'); const d=process.argv[1]; const f=fs.readdirSync(d).find(x=>x.endsWith('.tgz')); if(!f) throw new Error('tarball not found'); console.log(path.join(d,f));" "$PACK_DIR")"
 
-TMP=$(mktemp -d)
-cd "$TMP"
+cd "$SMOKE_DIR"
 npm init -y
-npm install ./ghuts-liteorm-1.0.0.tgz
+npm install "$PKG_PATH"
 
 node - <<'NODE'
 const { Database, defineModel, field } = require('@ghuts/liteorm');
@@ -1378,16 +1428,18 @@ Last verified in this project:
 
 ```text
 npm run build: pass
-npm test: 13 tests, 13 pass, 0 fail
+npm test: all tests pass
+npm run test:types: pass
+npm run test:examples: pass
 npm pack --dry-run: pass
 npm publish --dry-run --access public: pass
-smoke install from ghuts-liteorm-1.0.0.tgz: pass
+smoke install from ghuts-liteorm-1.1.0.tgz: pass
 ```
 
 ## Notes and implementation details
 
 - Runtime npm dependencies: none.
-- Native addon links against system SQLite.
+- Native addon builds against the vendored SQLite amalgamation in `deps/sqlite/`.
 - `db.prepare()` is currently a statement facade over the native query/exec methods.
 - `db.async.*` is Promise-compatible but uses the current synchronous native backend internally.
 - JSON support uses SQLite JSON1 functions for `whereJson`.

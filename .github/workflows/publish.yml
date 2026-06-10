@@ -1,0 +1,64 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish @ghuts/liteorm
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: npm
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install package and build native addon
+        run: npm install --no-package-lock
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "v$PKG_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version v$PKG_VERSION"
+            exit 1
+          fi
+          if npm view "@ghuts/liteorm@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "@ghuts/liteorm@$PKG_VERSION already exists on npm"
+            exit 1
+          fi
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run TypeScript declaration smoke test
+        run: npm run test:types
+
+      - name: Run examples
+        run: npm run test:examples
+
+      - name: Verify package contents
+        run: npm pack --dry-run
+
+      - name: Publish with npm provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

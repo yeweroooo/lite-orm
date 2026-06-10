@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 20, 22, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install package and build native addon
+        run: npm install --no-package-lock
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run TypeScript declaration smoke test
+        run: npm run test:types
+
+      - name: Run examples
+        run: npm run test:examples
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run
+
+      - name: Smoke install packed package
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACK_DIR="$RUNNER_TEMP/liteorm-pack"
+          SMOKE_DIR="$RUNNER_TEMP/liteorm-smoke"
+          mkdir -p "$PACK_DIR" "$SMOKE_DIR"
+          npm pack --pack-destination "$PACK_DIR"
+          TARBALL="$(node -e "const fs=require('fs'),path=require('path'); const d=process.argv[1]; const f=fs.readdirSync(d).find(x=>x.endsWith('.tgz')); if(!f) throw new Error('tarball not found'); console.log(path.join(d,f));" "$PACK_DIR")"
+          cd "$SMOKE_DIR"
+          npm init -y
+          npm install "$TARBALL" --no-package-lock
+          node -e "const { Database, sqliteVersion } = require('@ghuts/liteorm'); const db = new Database(':memory:'); db.exec('CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT)'); db.exec('INSERT INTO t(name) VALUES(?)', ['ok']); const row = db.query('SELECT name FROM t')[0]; if (row.name !== 'ok') throw new Error('smoke failed'); console.log('liteorm smoke ok; sqlite=' + sqliteVersion);"
+          node node_modules/@ghuts/liteorm/examples/todo/index.js

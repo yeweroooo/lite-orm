@@ -1,6 +1,6 @@
 {
   "name": "@ghuts/liteorm",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Zero-dependency native SQLite ORM for Node.js with query builder, migrations, relations, schema builder, FTS5, encryption, audit logs, and CLI.",
   "main": "lib/index.js",
   "types": "types/index.d.ts",
@@ -12,7 +12,9 @@
     "build": "node-gyp rebuild",
     "install": "node-gyp rebuild",
     "test": "node --test test/*.test.js",
-    "prepack": "npm test"
+    "test:examples": "node examples/todo/index.js && node examples/blog/index.js && node examples/auth/index.js",
+    "prepack": "npm test && npm run test:types && npm run test:examples",
+    "test:types": "tsc --noEmit --strict --module Node16 --target es2020 --moduleResolution node16 test/types-smoke.ts"
   },
   "keywords": [
     "sqlite",
@@ -32,6 +34,9 @@
     "src/",
     "bin/",
     "types/",
+    "examples/",
+    "docs/",
+    "deps/sqlite/",
     "binding.gyp",
     "README.md",
     "LICENSE"
@@ -68,5 +73,8 @@
   "bugs": {
     "url": "https://github.com/yeweroooo/lite-orm/issues"
   },
-  "homepage": "https://github.com/yeweroooo/lite-orm#readme"
+  "homepage": "https://github.com/yeweroooo/lite-orm#readme",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
 }

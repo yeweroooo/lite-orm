@@ -15,9 +15,19 @@ export declare class FieldDef {
 }
 export declare const field: { integer(): FieldDef; text(): FieldDef; real(): FieldDef; boolean(): FieldDef; json(): FieldDef; blob(): FieldDef };
 
-export interface ModelOptions<T> {
+export type ModelInstance<T extends Record<string, any>> = T & {
+  toJSON(): Record<string, unknown>;
+  getChanges(): Partial<T>;
+  save(): number;
+  reload(): ModelInstance<T>;
+  delete(force?: boolean): number;
+  restore(): number;
+};
+
+export interface ModelOptions<T extends Record<string, any>> {
   fields?: Partial<Record<keyof T & string, FieldDef>>;
   softDelete?: boolean; timestamps?: boolean; json?: (keyof T & string)[];
+  optimisticLock?: boolean;
   validate?: Partial<{ [K in keyof T]: Validator<T, K> }>;
   relations?: Record<string, Relation>;
   hidden?: (keyof T & string)[];
@@ -41,7 +51,7 @@ export declare class FTS { create(name: string, opts: { columns: string[] }): vo
 export declare class Database {
   filename: string; schema: SchemaBuilder; inspect: Inspector; fts: FTS;
   async: { query<T = Record<string, unknown>>(statement: string | SQLStatement, params?: unknown[]): Promise<T[]>; exec(statement: string | SQLStatement, params?: unknown[]): Promise<any>; transaction<T>(fn: (tx: Database) => T): Promise<T> };
-  constructor(filename?: string, options?: { cache?: { ttl?: number; max?: number } });
+  constructor(filename?: string, options?: { cache?: { ttl?: number; max?: number }; busyTimeout?: number; retry?: { attempts?: number; delay?: number }; encryptionKey?: string | Uint8Array });
   exec(statement: string | SQLStatement, params?: unknown[]): { changes: number | bigint; lastInsertRowid: number | bigint };
   query<T = Record<string, unknown>>(statement: string | SQLStatement, params?: unknown[], cache?: number | { ttl: number; max?: number }): T[];
   prepare<T = Record<string, unknown>>(text: string): Statement<T>;
@@ -56,15 +66,15 @@ export declare class QueryBuilder<T extends Record<string, any>> {
   orWhere(fn: (q: QueryBuilder<T>) => void): this; orWhere(column: keyof T & string | string, op: string, value: unknown): this;
   whereNot(column: string, op: string, value: unknown): this; whereIn(column: string, values: unknown[]): this; whereNull(column: string): this; whereBetween(column: string, a: unknown, b: unknown): this; whereExists(subquery: string | QueryBuilder<any>, params?: unknown[]): this; whereJson(path: string, op: string, value: unknown): this;
   join(table: string, left: string, op: string, right: string): this; leftJoin(table: string, left: string, op: string, right: string): this; groupBy(...cols: string[]): this; having(expr: string, params?: unknown[]): this;
-  orderBy(column: string, dir?: 'asc' | 'desc' | 'ASC' | 'DESC'): this; limit(n: number): this; offset(n: number): this; with(name: string): this; withDeleted(): this; onlyDeleted(): this; cache(ttl?: number): this; scope(name: string): this;
-  toSQL(select?: string): SQLStatement; get<R = T>(): (R & { toJSON(): Record<string, unknown> })[]; first<R = T>(): (R & { toJSON(): Record<string, unknown> }) | null; count(): number; update(data: Partial<T>): number; delete(force?: boolean): number;
+  orderBy(column: string, dir?: 'asc' | 'desc' | 'ASC' | 'DESC'): this; limit(n: number): this; offset(n: number): this; with(name: string, constraint?: (q: QueryBuilder<any>) => void): this; withDeleted(): this; onlyDeleted(): this; cache(ttl?: number): this; scope(name: string): this;
+  toSQL(select?: string): SQLStatement; get<R extends Record<string, any> = T>(): ModelInstance<R>[]; first<R extends Record<string, any> = T>(): ModelInstance<R> | null; count(): number; update(data: Partial<T>): number; delete(force?: boolean): number;
   insert(data: Partial<T>): this; onConflict(cols: string | string[]): this; ignore(): any; merge(cols?: string[]): any;
 }
 export declare class Model<T extends Record<string, any>> {
   readonly db: Database; readonly table: string;
   query(): QueryBuilder<T>; using(db: Database): Model<T>; hook(name: string, fn: (row: Partial<T> | T) => void): this;
-  create(data: Partial<T>): T & { toJSON(): Record<string, unknown> }; insertMany(rows: Partial<T>[]): T[]; upsert(data: Partial<T>, conflictCols: string | string[], mergeCols?: string[]): any;
-  find(id: number | bigint, withDeleted?: boolean): (T & { toJSON(): Record<string, unknown> }) | null; delete(id: number | bigint, force?: boolean): number; restore(id: number | bigint): number;
+  create(data: Partial<T>): ModelInstance<T>; insertMany(rows: Partial<T>[]): ModelInstance<T>[]; upsert(data: Partial<T>, conflictCols: string | string[], mergeCols?: string[]): any;
+  find(id: number | bigint, withDeleted?: boolean): ModelInstance<T> | null; delete(id: number | bigint, force?: boolean): number; restore(id: number | bigint): number;
 }
 export declare function defineModel<T extends Record<string, any>>(db: Database, table: string, options?: ModelOptions<T>): Model<T>;
 export declare const sqliteVersion: string;
@@ -85,5 +95,5 @@ declare module './index' {
     repo<T extends Record<string, any>, R>(model: Model<T>, Repo: new (model: Model<T>, db: Database) => R): R;
   }
   interface SchemaBuilder { diff(table: string, fields: Record<string, FieldDef>): string[]; generateMigration(name: string, statements: string[], dir?: string): string; }
-  interface QueryBuilder<T extends Record<string, any>> { withCount(name: string): this; cursorPaginate(opts?: { after?: unknown; limit?: number; column?: string; direction?: 'asc' | 'desc' }): { data: T[]; hasMore: boolean; nextCursor: unknown }; }
+  interface QueryBuilder<T extends Record<string, any>> { withCount(name: string): this; cursorPaginate<R extends Record<string, any> = T>(opts?: { after?: unknown; limit?: number; column?: string; direction?: 'asc' | 'desc' }): { data: ModelInstance<R>[]; hasMore: boolean; nextCursor: unknown }; }
 }
