@@ -11,7 +11,7 @@ Zero-dependency native SQLite ORM for Node.js.
 
 Lite ORM is a lightweight SQLite-first ORM built around a C++ N-API addon and a small JavaScript ORM layer. It gives you a query builder, schema builder, migrations, typed models, relationships, validation, transactions, caching, hooks, soft deletes, JSON fields, FTS5, encryption casts, audit logs, CLI utilities, and TypeScript declarations without adding runtime npm dependencies.
 
-Current version: 1.1.0
+Current version: 1.2.0
 
 Package name: `@ghuts/liteorm`
 
@@ -24,18 +24,20 @@ NPM: https://www.npmjs.com/package/@ghuts/liteorm
 - Native SQLite bridge using C++ N-API.
 - Zero runtime npm dependencies.
 - SQLite-first design: WAL, foreign keys, JSON1, FTS5, PRAGMA tuning, backup via `VACUUM INTO`.
-- Query Builder: filters, grouped conditions, joins, ordering, grouping, pagination, update/delete.
-- Schema Builder: create/drop/rename tables, columns, indexes, unique indexes.
-- Models: field definitions, validators, defaults, JSON casts, encrypted casts, hidden/computed fields.
+- Native prepared statements, statement cache stats, JavaScript UDFs, and custom collations.
+- Query Builder: filters, grouped conditions, joins, ordering, grouping, pagination, JSON operators, update/delete/restore.
+- Schema Builder: create/drop/rename tables, columns, indexes, unique indexes, JSON expression indexes.
+- Models: field definitions, structured validators, defaults, JSON casts, encrypted casts with key rotation, hidden/computed fields.
 - Relationships: `hasOne`, `hasMany`, `belongsTo`, `belongsToMany`.
-- Migrations: run once, rollback, generate migration from schema diff.
-- TypeScript declarations included.
-- Transactions, caching, hooks, soft delete, restore, model instances, dirty tracking.
-- FTS5 search helper.
+- Migrations: run once, status, preview, seed, rollback, generate model/migration scaffolds.
+- TypeScript-first declarations with generic model/create/update helpers.
+- Transactions with nested savepoints, retries, caching, abortable lifecycle hooks, paranoid soft delete, restore, dirty tracking.
+- CDC/sync helpers, query profiling, RBAC policies, plugin hooks.
+- FTS5 search helper with rank, highlight, snippets, sync triggers.
 - Introspection and explain query plan.
 - Audit log helper.
-- Factory, seeder, export/import JSON/CSV, repository helper.
-- CLI: init, inspect, migration generator, SQL studio exec, JSON export.
+- Factory, deterministic seeder, export/import JSON/CSV, repository helper.
+- CLI: init, inspect, model/migration generator, migrate/status/seed/rollback/preview, SQL studio exec, JSON export, doctor.
 
 ## Requirements
 
@@ -63,7 +65,7 @@ npm install @ghuts/liteorm
 From local tarball:
 
 ```bash
-npm install ./ghuts-liteorm-1.1.0.tgz
+npm install ./ghuts-liteorm-1.2.0.tgz
 ```
 
 From local project folder:
@@ -1355,7 +1357,7 @@ npm pack
 
 ## Publish
 
-The package is prepared for npm publish as v1.1.0.
+The package is prepared for npm publish as v1.2.0.
 
 Pre-publish validation:
 
@@ -1381,7 +1383,7 @@ npm view @ghuts/liteorm version
 Expected output:
 
 ```text
-1.1.0
+1.2.0
 ```
 
 ## Smoke test from tarball
@@ -1433,14 +1435,14 @@ npm run test:types: pass
 npm run test:examples: pass
 npm pack --dry-run: pass
 npm publish --dry-run --access public: pass
-smoke install from ghuts-liteorm-1.1.0.tgz: pass
+smoke install from ghuts-liteorm-1.2.0.tgz: pass
 ```
 
 ## Notes and implementation details
 
 - Runtime npm dependencies: none.
 - Native addon builds against the vendored SQLite amalgamation in `deps/sqlite/`.
-- `db.prepare()` is currently a statement facade over the native query/exec methods.
+- `db.prepare()` uses native SQLite prepared statements with explicit finalization and statement-cache support.
 - `db.async.*` is Promise-compatible but uses the current synchronous native backend internally.
 - JSON support uses SQLite JSON1 functions for `whereJson`.
 - FTS support requires SQLite compiled with FTS5.

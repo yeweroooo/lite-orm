@@ -29,7 +29,7 @@ test('v1.1 professional release files exist and package includes docs/examples',
   for (const file of required) assert.equal(fs.existsSync(path.join(root, file)), true, `${file} missing`);
 
   const pkg = require('../package.json');
-  assert.equal(pkg.version, '1.1.0');
+  assert.equal(pkg.version, '1.2.0');
   assert.ok(pkg.files.includes('examples/'));
   assert.ok(pkg.files.includes('docs/'));
   assert.ok(pkg.files.includes('deps/sqlite/'));
